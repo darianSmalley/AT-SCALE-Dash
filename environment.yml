@@ -1,0 +1,14 @@
+name: atscale
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python
+  - pip
+  - numpy
+  - pandas
+  - ipykernel
+  - ipywidgets
+  - pandas
+  - dash
+  - dash-bootstrap-components
