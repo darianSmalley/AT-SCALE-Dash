@@ -5,25 +5,28 @@ import dash_bootstrap_components as dbc
 import base64
 import io
 import json
+import pandas as pd
+
+from .data_store import update_store, local_data
 
 data_buttons = dbc.Row(
     [
         dbc.Col(
             [
-                dbc.Button(
-                    [
-                        html.I(className="fa-solid fa-server"),
-                        ' Server'
-                    ], 
-                    id='local_data',
-                    className="me-1",
-                    color='primary',
-                    n_clicks=0
-                ),
+                # dbc.Button(
+                #     [
+                #         html.I(className="fa-solid fa-server"),
+                #         ' Local'
+                #     ], 
+                #     id='local_data',
+                #     className="me-1",
+                #     color='primary',
+                #     n_clicks=0
+                # ),
                 dbc.Button(
                     [
                         html.I(className="fa-solid fa-upload"),
-                        ' Upload'
+                        ' Load'
                     ],
                     id="collapse-button",
                     className="me-1",
@@ -43,23 +46,27 @@ data_buttons = dbc.Row(
                     disabled=True
                 ),
                 dbc.Collapse(
-                    dcc.Upload(
-                        id='upload-data',
-                        children=html.Div([
-                            'Drag and Drop or ',
-                            html.A('Select Files')
-                        ]),
-                        style={
-                            'width': '100%',
-                            'height': '60px',
-                            'lineHeight': '60px',
-                            'borderWidth': '1px',
-                            'borderStyle': 'dashed',
-                            'borderRadius': '5px',
-                            'textAlign': 'center',
-                            'margin': '10px'
-                        },
-                        multiple=False
+                    # dcc.Loading(
+                        dcc.Upload(
+                            id='upload-data',
+                            children=html.Div([
+                                'Drag and Drop or ',
+                                html.A('Select Files')
+                            ]),
+                            style={
+                                'width': '100%',
+                                'height': '60px',
+                                'lineHeight': '60px',
+                                'borderWidth': '1px',
+                                'borderStyle': 'dashed',
+                                'borderRadius': '5px',
+                                'textAlign': 'center',
+                                'margin': '10px'
+                            },
+                            multiple=False
+                        # ),
+                        # id='loading-upload',
+                        # display='hide',
                     ),
                     id="collapse",
                     is_open=False,
@@ -104,78 +111,53 @@ def toggle_offcanvas(n1, is_open):
     
     return is_open
 
-@app.callback(
+@callback(
     Output("collapse", "is_open"),
-    [Input("collapse-button", "n_clicks")],
+    [Input("collapse-button", "n_clicks"), Input('upload-data', 'contents'),],
     [State("collapse", "is_open")],
 )
-def toggle_collapse(n, is_open):
+def toggle_collapse(n, load_contents, is_open):
     if n:
         return not is_open
+    
     return is_open
 
-def parse_contents(contents):
-    if contents is None:
-        raise PreventUpdate
+# @callback(
+#     Output('loading-upload', 'display'),
+#     Input('upload-data', 'contents'),
+#     Input('store', 'data'),
+#     # prevent_initial_call=True
+# )
+# def show_upload_loading(upload_contents, store_data):
+#     triggered_id = ctx.triggered_id
 
-    content_type, content_string = contents.split(',')
-    decoded = base64.b64decode(content_string)
-
-    return decoded
-
-def load_df(filename, decoded):
-    try:
-        if 'csv' in filename:
-            # Assume a CSV file
-            df = pd.read_csv(
-                io.StringIO(decoded.decode('utf-8')))
-        elif 'xls' in filename:
-            # Assume an excel file
-            df = pd.read_excel(io.BytesIO(decoded))
-        else:
-            # Assume a text file formatted by the DED printer
-            df = pd.read_csv(io.StringIO(decoded.decode('utf-8')), skiprows=[1], skipfooter=38, engine='python') 
-    except Exception as e:
-        print(e)
-        return no_update
-
-    return df
+#     if triggered_id == 'upload-data':
+#         print('show loader')
+#         return 'show'
+#     elif triggered_id == 'store':
+#         print('hide loader')
+#         return 'hide'
+#     else:
+#         print('no update')
+#         return no_update
 
 @callback(
         Output('store', 'data'),
-        Input('local_data', 'n_clicks'),
+        # Input('local_data', 'n_clicks'),
         Input('upload-data', 'contents'),
         State('upload-data', 'filename'),
 )
-def update_store(local_click, contents, filename):
+def update_store_callback(contents, filename):
     triggered_id = ctx.triggered_id
 
-    if triggered_id == 'local_data':
-        return local_store(local_click)
-    elif triggered_id == 'upload-data':
-        return upload_store(contents, filename)
+    # if triggered_id == 'local_data':
+    #     upload = False
+    # elif triggered_id == 'upload-data':
+    #     upload = True
 
-def upload_store(contents, filename):
-    if contents is None:
-        return None    
-    else:
-        decoded = parse_contents(contents)
-        dff = load_df(filename, decoded)
-        dff.columns = dff.columns.str.strip()
-        dff = dff.sort_index(axis=1)
-        d = dff.to_dict('records')
-        datastore = {
-            "df": d,
-            "uploaded_data": True
-        }
-        return datastore
-    
-def local_store(n_clicks):
-    if n_clicks:
-        d = {'uploaded_data': False}
-        return d
-    else:
-        return None
+    upload = False
+
+    return update_store(contents, filename, upload)
     
 def generate_filter_list_item(series):
     col_name = series.name
@@ -228,20 +210,10 @@ def generate_filter_list(data):
     if data['uploaded_data']:
         dff = pd.DataFrame(data['df'])
     else:
-        dff = df.copy()
+        dff = local_data.df.copy()
 
     list_items = [generate_filter_list_item(dff[col_name]) for col_name in dff.columns.values]
     return list_items
-
-def apply_filter(df, slider_values, slider_ids):
-    for value, id in zip(slider_values, slider_ids):
-        if value:
-            low, high = value
-            col_name = id['index']
-            mask = (df[col_name] >= low) & (df[col_name] <= high)
-            df = df[mask]
-    
-    return df
 
 @callback(
     [
@@ -258,6 +230,6 @@ def update_dropdowns(data):
     if data['uploaded_data']:
         dff = pd.DataFrame(data['df'])
     else:
-        dff = df.copy()
+        dff = local_data.df.copy()
 
     return dff.columns.values, dff.columns.values, dff.columns.values

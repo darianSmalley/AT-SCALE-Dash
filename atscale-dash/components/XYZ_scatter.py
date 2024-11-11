@@ -4,21 +4,24 @@ import dash_bootstrap_components as dbc
 import plotly.express as px
 import pandas as pd
 
-XYZ_scactter = dbc.Card(
-                            [
-                                dbc.CardBody(
-                                    [
-                                        html.H4("XYZ Scatter Plot", className="card-title"),
-                                        # html.H6("Marker Color", className="card-subtitle"),
-                                        'Marker Color',
-                                        dcc.Dropdown(id='scatter_color_name', value='Program Time (s)', style={'width':'22rem'}),
-                                        dcc.Loading([
-                                            dcc.Graph(id='3d-scatter', style={'display': 'none'})
-                                        ], type='graph'),
-                                    ]
-                                ),
-                            ],
-                            class_name="shadow-sm p-3 mb-5 bg-white rounded")
+from .util import apply_filter
+from .data_store import local_data
+
+XYZ_scatter = dbc.Card(
+    [
+        dbc.CardBody(
+            [
+                html.H4("XYZ Scatter Plot", className="card-title"),
+                html.H6("Marker Color", className="card-subtitle"),
+                dcc.Dropdown(id='scatter_color_name', value='Program Time (s)', style={'width':'22rem'}),
+                dcc.Loading([
+                    dcc.Graph(id='3d-scatter', style={'display': 'none'})
+                ], type='graph'),
+            ]
+        ),
+    ],
+    class_name="shadow-sm p-3 mb-5 bg-white rounded"
+)
 
 @callback(
     Output('3d-scatter', 'figure'),
@@ -35,7 +38,7 @@ def update_scatter3d(data, scatter_color_name, slider_values, slider_ids,):
     if data['uploaded_data']:
         dff = pd.DataFrame(data['df'])
     else:
-        dff = df.copy()
+        dff = local_data.df.copy()
 
     dff = apply_filter(dff, slider_values, slider_ids)
 
