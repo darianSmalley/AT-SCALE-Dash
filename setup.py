@@ -27,7 +27,7 @@ if __name__ == "__main__":
             'numpy',
             'plotly',
             'dash',
-            'dash-bootstrap-components'
+            'dash-bootstrap-components',
             'pandas',
         ],
         classifiers=['Programming Language :: Python',
