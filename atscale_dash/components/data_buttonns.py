@@ -123,22 +123,6 @@ def toggle_filter_button_disabled(data):
     return True
 
 @callback(
-    Output('export-loader', 'children'),
-    # Output('progress-spinner', 'children'),
-    Input("export-button", "n_clicks"),
-    Input({'type': 'property_range_slider', 'index': ALL}, 'value'),
-    State({'type': 'property_range_slider', 'index': ALL}, 'id'),
-)
-def export_button_callback(n, slider_values, slider_ids):
-    if n == 0:
-        return no_update
-    else:    
-        print('export filtered datafarme')
-        local_data.export_data(slider_values, slider_ids)
-        return [html.I(className="fa-solid fa-file-export"),
-                                ' Export']
-
-@callback(
     Output("offcanvas", "is_open"),
     Input("open-offcanvas", "n_clicks"),
     [State("offcanvas", "is_open")],
@@ -188,8 +172,7 @@ def toggle_collapse(n, load_contents, is_open):
         State('upload-data', 'filename')
 )
 def update_store_callback(contents, filename):
-    children = [html.I(className="fa-solid fa-upload"),
-                                    ' Load']
+    children = [html.I(className="fa-solid fa-upload"),' Load']
     
     if contents is None:
         # return no_update
@@ -201,6 +184,20 @@ def update_store_callback(contents, filename):
         out = update_store(contents, filename, upload)
         
         return out, children, False
+    
+@callback(
+    Output('export-loader', 'children'),
+    # Output('progress-spinner', 'children'),
+    Input("export-button", "n_clicks"),
+    Input({'type': 'property_range_slider', 'index': ALL}, 'value'),
+    State({'type': 'property_range_slider', 'index': ALL}, 'id'),
+)
+def export_button_callback(n, slider_values, slider_ids):
+    if n > 0:
+        print('export filtered datafarme')
+        local_data.export_data(slider_values, slider_ids)
+
+    return [html.I(className="fa-solid fa-file-export"),' Export']
     
 def generate_filter_list_item(series):
     col_name = series.name
