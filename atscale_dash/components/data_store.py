@@ -6,6 +6,15 @@ import pandas as pd
 
 from .util import apply_filter
 
+
+import os
+if os.getenv("COLAB_RELEASE_TAG"):
+   print("Running in Colab")
+   IN_COLAB = True
+else:
+   print("NOT in Colab")
+   IN_COLAB = False
+
 def load_df(filename, decoded=None):
     try:
         if 'csv' in filename:
@@ -86,7 +95,16 @@ class _local_data:
     def export_data(self, slider_values, slider_ids):
         dff = self.df.copy()
         dff = apply_filter(dff, slider_values, slider_ids)
-        out_filepath = f'{self.root_dir}/{self.dir}/{self.filename}_filtered.csv'
-        # dff.to_csv(out_filepath, index=False)
+        
+        
+        if IN_COLAB:
+            # from google.colab import files
+            out_filepath = f'{self.filename}_filtered.csv'
+            dff.to_csv(out_filepath, index=False, encoding='utf-8-sig')
+            # files.download('output.csv')
+        else:
+            out_filepath = f'{self.root_dir}/{self.dir}/{self.filename}_filtered.csv'
+            dff.to_csv(out_filepath, index=False)
+
 
 local_data = _local_data()
