@@ -87,6 +87,6 @@ class _local_data:
         dff = self.df.copy()
         dff = apply_filter(dff, slider_values, slider_ids)
         out_filepath = f'{self.root_dir}/{self.dir}/{self.filename}_filtered.csv'
-        dff.to_csv(out_filepath, index=False)
+        # dff.to_csv(out_filepath, index=False)
 
 local_data = _local_data()
