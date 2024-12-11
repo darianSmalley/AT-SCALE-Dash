@@ -8,7 +8,7 @@ tutorial = dbc.Row(
     dcc.Loading(
         dbc.Col(
             [
-                html.H1('Load data to start!', className='display-3 text-muted'),
+                html.H1('Load data to start!', className='display-4 text-muted'),
                 html.Img(src=MAG_GLASS_ICON, 
                         style={'width': '13.33%', 'animation-name': 'fadeInUp'},
                         className="animate__animated animate__fadeInUp animate__slower"),
@@ -25,8 +25,8 @@ tutorial = dbc.Row(
 
 @callback(    
     Output("tutorial", "style"),
-    # Input('upload-data', 'contents'),
-    Input('store', 'data')
+    Input('upload-data', 'contents'),
+    # Input('store', 'data')
 )
 def toggle_tutorial(data):
     if data:
@@ -53,12 +53,12 @@ def toggle_tutorial(data):
 #         print('no update')
 #         return no_update
     
-@callback(
-    Output('loading-upload', 'display'),
-    Input('upload-data', 'contents'),
-)
-def show_upload_loading(upload_contents):
-    if upload_contents:
-        return 'show'
+# @callback(
+#     Output('loading-upload', 'display'),
+#     Input('upload-data', 'contents'),
+# )
+# def show_upload_loading(upload_contents):
+#     if upload_contents:
+#         return 'show'
     
-    return 'hide'
+#     return 'hide'

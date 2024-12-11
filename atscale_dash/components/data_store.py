@@ -4,6 +4,8 @@ from dash import no_update
 from dash.exceptions import PreventUpdate
 import pandas as pd
 
+from .util import apply_filter
+
 def load_df(filename, decoded=None):
     try:
         if 'csv' in filename:
@@ -76,5 +78,11 @@ class _local_data:
 
     def set_filename(self, filename):
         self.filename = filename
+    
+    def export_data(self, slider_values, slider_ids):
+        dff = self.df.copy()
+        dff = apply_filter(dff, slider_values, slider_ids)
+        out_filepath = f'{local_data.root_dir}/{local_data.dir}/{local_data.filename}_filtered.csv'
+        dff.to_csv(out_filepath, index=False)
 
 local_data = _local_data()

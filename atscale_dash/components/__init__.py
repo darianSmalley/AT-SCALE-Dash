@@ -4,4 +4,5 @@ from .tutorial import tutorial
 from .XY_scatter import XY_scatter
 from .XYZ_scatter import XYZ_scatter
 from .file_info import file_info
+from .layout import layout
 from .data_store import *

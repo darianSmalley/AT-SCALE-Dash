@@ -5,10 +5,10 @@ channels:
 dependencies:
   - python
   - pip
-  - numpy
-  - pandas
   - ipykernel
   - ipywidgets
+  - numpy
   - pandas
   - dash
   - dash-bootstrap-components
+  - plotly

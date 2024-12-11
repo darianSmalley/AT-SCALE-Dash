@@ -25,12 +25,19 @@ data_buttons = dbc.Row(
                 # ),
                 dbc.Button(
                     [
-                        html.I(className="fa-solid fa-upload"),
-                        ' Load'
+                        dcc.Loading(
+                            [   
+                                html.I(className="fa-solid fa-upload"),
+                                ' Load'
+                            ],
+                            id='load-loader',
+                            overlay_style={"visibility":"visible", "filter": "blur(2px)"},
+                            type='default'
+                        )
                     ],
                     id="collapse-button",
                     className="me-1",
-                    color="info",
+                    color="primary",
                     n_clicks=0,
                 ),
                 dbc.Button(
@@ -45,28 +52,43 @@ data_buttons = dbc.Row(
                     class_name="me-1",
                     disabled=True
                 ),
+                dbc.Button(
+                    [   
+                        dcc.Loading(
+                            [   
+                                html.I(className="fa-solid fa-file-export"),
+                                ' Export'
+                            ],
+                            id='export-loader',
+                            overlay_style={"visibility":"visible", "filter": "blur(2px)"},
+                            type='default'
+                        )
+                    ], 
+                    id='export-button',
+                    className="me-1",
+                    color='info',
+                    n_clicks=0,
+                    disabled=True
+                ),
                 dbc.Collapse(
-                    # dcc.Loading(
-                        dcc.Upload(
-                            id='upload-data',
-                            children=html.Div([
-                                'Drag and Drop or ',
-                                html.A('Select Files')
-                            ]),
-                            style={
-                                'width': '100%',
-                                'height': '60px',
-                                'lineHeight': '60px',
-                                'borderWidth': '1px',
-                                'borderStyle': 'dashed',
-                                'borderRadius': '5px',
-                                'textAlign': 'center',
-                                'margin': '10px'
-                            },
-                            multiple=False
-                        # ),
-                        # id='loading-upload',
-                        # display='hide',
+                    dcc.Upload(
+                        id='upload-data',
+                        children=html.Div([
+                            'Drag and Drop or ',
+                            html.A('Select Files')
+                        ]),
+                        style={
+                            # 'width': '100%',
+                            # 'height': '60px',
+                            'lineHeight': '60px',
+                            'borderWidth': '1px',
+                            'borderStyle': 'dashed',
+                            'borderRadius': '5px',
+                            'textAlign': 'center',
+                            'margin': '10px'
+                        },
+                        multiple=False
+
                     ),
                     id="collapse",
                     is_open=False,
@@ -99,6 +121,22 @@ def toggle_filter_button_disabled(data):
         return False
     
     return True
+
+@callback(
+    Output('export-loader', 'children'),
+    # Output('progress-spinner', 'children'),
+    Input("export-button", "n_clicks"),
+    Input({'type': 'property_range_slider', 'index': ALL}, 'value'),
+    State({'type': 'property_range_slider', 'index': ALL}, 'id'),
+)
+def export_button_callback(n, slider_values, slider_ids):
+    if n:
+        print('export filtered datafarme')
+        local_data.export_data(slider_values, slider_ids)
+        return [html.I(className="fa-solid fa-file-export"),
+                                ' Export']
+    
+    return no_update
 
 @callback(
     Output("offcanvas", "is_open"),
@@ -143,11 +181,16 @@ def toggle_collapse(n, load_contents, is_open):
 
 @callback(
         Output('store', 'data'),
+        Output('load-loader', 'children'),
+        Output('export-button', 'disabled'),
         # Input('local_data', 'n_clicks'),
         Input('upload-data', 'contents'),
-        State('upload-data', 'filename'),
+        State('upload-data', 'filename')
 )
 def update_store_callback(contents, filename):
+    if contents is None:
+        return no_update
+    
     triggered_id = ctx.triggered_id
 
     # if triggered_id == 'local_data':
@@ -157,7 +200,11 @@ def update_store_callback(contents, filename):
 
     upload = False
 
-    return update_store(contents, filename, upload)
+    out = update_store(contents, filename, upload)
+    children = [html.I(className="fa-solid fa-upload"),
+                                ' Load']
+
+    return out, children, False
     
 def generate_filter_list_item(series):
     col_name = series.name
@@ -220,6 +267,8 @@ def generate_filter_list(data):
         Output('scatter_color_name', 'options'),
         Output('xaxis_column_name', 'options'),
         Output('yaxis_column_name', 'options'),
+        Output('2Dscatter_color_name', 'options'),
+        Output('scatter_size_name', 'options')
     ],
     Input('store', 'data'),
 )
@@ -232,4 +281,4 @@ def update_dropdowns(data):
     else:
         dff = local_data.df.copy()
 
-    return dff.columns.values, dff.columns.values, dff.columns.values
+    return dff.columns.values, dff.columns.values, dff.columns.values, dff.columns.values, dff.columns.values

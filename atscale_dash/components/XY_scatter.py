@@ -15,8 +15,8 @@ XY_scatter = dbc.Card(
                 dbc.Row([
                     dbc.Col(
                         [
-                            'X-Axis',
-                            dcc.Dropdown(id='xaxis_column_name', value='Program Time (s)'),
+                            html.H6('X-Axis', className="card-subtitle"),
+                            dcc.Dropdown(id='xaxis_column_name', value='Melt Pool Temperature (C)'),
                             dcc.RadioItems(
                                 ['Linear', 'Log'],
                                 'Linear',
@@ -28,8 +28,8 @@ XY_scatter = dbc.Card(
                     ),
                     dbc.Col(
                         [
-                            'Y-Axis',
-                            dcc.Dropdown(id='yaxis_column_name', value='SLED (J/mm^2)'),
+                            html.H6("Y-Axis", className="card-subtitle"),
+                            dcc.Dropdown(id='yaxis_column_name', value='Melt Pool Size (mm)'),
                             dcc.RadioItems(
                                 ['Linear', 'Log'],
                                 'Linear',
@@ -39,6 +39,12 @@ XY_scatter = dbc.Card(
                         ],
                         align="end"
                     ),
+                    dbc.Col(
+                        [
+                            html.H6("Marker Color", className="card-subtitle"),
+                            dcc.Dropdown(id='2Dscatter_color_name', value='Laser Power On Time (s)'),
+                        ]
+                    )
                 ]),
                 dcc.Loading(
                     dcc.Graph(id='graph-content', style={'display': 'none'}), type='graph'
@@ -46,7 +52,7 @@ XY_scatter = dbc.Card(
             ]
         )
     ],
-    class_name="shadow-sm p-3 mb-5 bg-white rounded"
+    class_name="shadow-sm p-3 mb-5 bg-white rounded animate__animated animate__fadeInUp animate__slow"
 )
 
 @callback(
@@ -57,10 +63,11 @@ XY_scatter = dbc.Card(
     Input('yaxis_column_name', 'value'),
     Input('crossfilter-xaxis-type', 'value'),
     Input('crossfilter-yaxis-type', 'value'),
+    Input('2Dscatter_color_name', 'value'),
     Input({'type': 'property_range_slider', 'index': ALL}, 'value'),
     State({'type': 'property_range_slider', 'index': ALL}, 'id'),
 )
-def update_graph(data, xaxis_column_name, yaxis_column_name, xaxis_type, yaxis_type, slider_values, slider_ids):
+def update_graph(data, xaxis_column_name, yaxis_column_name, xaxis_type, yaxis_type, scatter_color_name, slider_values, slider_ids):
     if data is None:
         return no_update
     
@@ -74,12 +81,16 @@ def update_graph(data, xaxis_column_name, yaxis_column_name, xaxis_type, yaxis_t
     fig = px.scatter(dff,
         x=xaxis_column_name,
         y=yaxis_column_name,
+        color=scatter_color_name
     )
 
     fig.update_xaxes(title=xaxis_column_name, type='linear' if xaxis_type == 'Linear' else 'log')
 
     fig.update_yaxes(title=yaxis_column_name, type='linear' if yaxis_type == 'Linear' else 'log')
 
-    fig.update_layout(margin={'l': 40, 'b': 40, 't': 10, 'r': 0}, hovermode='closest')
+    fig.update_layout(
+        coloraxis_colorbar_title_side="right",
+        margin={'l': 40, 'b': 40, 't': 10, 'r': 0}, 
+        hovermode='closest')
 
     return fig, {}

@@ -11,13 +11,13 @@ module_dir = os.path.dirname(os.path.abspath(__file__))
 
 if __name__ == "__main__":
     setup(
-        name='logicalEELS',
+        name='AT-SACLE Dashboard',
         python_requires='>=3.8',
         version=__version__,
-        description='TensorFlow Framework for classification of EELS data with embedded theoretical structures',
+        description='Interactive dashboard for inspecting DED printer log data.',
         long_description=open(os.path.join(module_dir, 'README.md')).read(),
         long_description_content_type='text/markdown',
-        url='https://github.com/darianSmalley/AT-SCALE-Dash',
+        url='https://github.com/JHU-Metal-AM/AT-SCALE-Dash',
         author=__author__,
         author_email=__email__,
         license='JHU Academic Software License',
