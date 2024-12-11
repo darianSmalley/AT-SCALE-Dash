@@ -188,22 +188,18 @@ def toggle_collapse(n, load_contents, is_open):
         State('upload-data', 'filename')
 )
 def update_store_callback(contents, filename):
+    children = [html.I(className="fa-solid fa-upload"),
+                                    ' Load']
+    
     if contents is None:
-        return no_update
+        # return no_update
+        return None, children, True
     else:
         triggered_id = ctx.triggered_id
-
-        # if triggered_id == 'local_data':
-        #     upload = False
-        # elif triggered_id == 'upload-data':
-        #     upload = True
-
         upload = False
 
         out = update_store(contents, filename, upload)
-        children = [html.I(className="fa-solid fa-upload"),
-                                    ' Load']
-
+        
         return out, children, False
     
 def generate_filter_list_item(series):
