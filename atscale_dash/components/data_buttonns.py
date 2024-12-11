@@ -130,14 +130,13 @@ def toggle_filter_button_disabled(data):
     State({'type': 'property_range_slider', 'index': ALL}, 'id'),
 )
 def export_button_callback(n, slider_values, slider_ids):
-    if n is None:
+    if n == 0:
         return no_update
     else:    
-        if n:
-            print('export filtered datafarme')
-            local_data.export_data(slider_values, slider_ids)
-            return [html.I(className="fa-solid fa-file-export"),
-                                    ' Export']
+        print('export filtered datafarme')
+        local_data.export_data(slider_values, slider_ids)
+        return [html.I(className="fa-solid fa-file-export"),
+                                ' Export']
 
 @callback(
     Output("offcanvas", "is_open"),

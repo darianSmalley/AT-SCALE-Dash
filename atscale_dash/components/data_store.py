@@ -84,7 +84,6 @@ class _local_data:
         self.filename = filename
     
     def export_data(self, slider_values, slider_ids):
-        print('in export data')
         dff = self.df.copy()
         dff = apply_filter(dff, slider_values, slider_ids)
         out_filepath = f'{self.root_dir}/{self.dir}/{self.filename}_filtered.csv'
