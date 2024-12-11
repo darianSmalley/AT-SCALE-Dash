@@ -130,13 +130,14 @@ def toggle_filter_button_disabled(data):
     State({'type': 'property_range_slider', 'index': ALL}, 'id'),
 )
 def export_button_callback(n, slider_values, slider_ids):
-    if n:
-        print('export filtered datafarme')
-        local_data.export_data(slider_values, slider_ids)
-        return [html.I(className="fa-solid fa-file-export"),
-                                ' Export']
-    
-    return no_update
+    if n is None:
+        return no_update
+    else:    
+        if n:
+            print('export filtered datafarme')
+            local_data.export_data(slider_values, slider_ids)
+            return [html.I(className="fa-solid fa-file-export"),
+                                    ' Export']
 
 @callback(
     Output("offcanvas", "is_open"),
@@ -190,21 +191,21 @@ def toggle_collapse(n, load_contents, is_open):
 def update_store_callback(contents, filename):
     if contents is None:
         return no_update
-    
-    triggered_id = ctx.triggered_id
+    else:
+        triggered_id = ctx.triggered_id
 
-    # if triggered_id == 'local_data':
-    #     upload = False
-    # elif triggered_id == 'upload-data':
-    #     upload = True
+        # if triggered_id == 'local_data':
+        #     upload = False
+        # elif triggered_id == 'upload-data':
+        #     upload = True
 
-    upload = False
+        upload = False
 
-    out = update_store(contents, filename, upload)
-    children = [html.I(className="fa-solid fa-upload"),
-                                ' Load']
+        out = update_store(contents, filename, upload)
+        children = [html.I(className="fa-solid fa-upload"),
+                                    ' Load']
 
-    return out, children, False
+        return out, children, False
     
 def generate_filter_list_item(series):
     col_name = series.name
@@ -253,14 +254,15 @@ def generate_filter_list_item(series):
 def generate_filter_list(data):
     if data is None:
         return no_update
-
-    if data['uploaded_data']:
-        dff = pd.DataFrame(data['df'])
     else:
-        dff = local_data.df.copy()
+        if data['uploaded_data']:
+            dff = pd.DataFrame(data['df'])
+        else:
+            dff = local_data.df.copy()
 
-    list_items = [generate_filter_list_item(dff[col_name]) for col_name in dff.columns.values]
-    return list_items
+        list_items = [generate_filter_list_item(dff[col_name]) for col_name in dff.columns.values]
+        return list_items
+    
 
 @callback(
     [
@@ -275,10 +277,11 @@ def generate_filter_list(data):
 def update_dropdowns(data):
     if data is None:
         return no_update
-    
-    if data['uploaded_data']:
-        dff = pd.DataFrame(data['df'])
     else:
-        dff = local_data.df.copy()
+        if data['uploaded_data']:
+            dff = pd.DataFrame(data['df'])
+        else:
+            dff = local_data.df.copy()
 
-    return dff.columns.values, dff.columns.values, dff.columns.values, dff.columns.values, dff.columns.values
+        return dff.columns.values, dff.columns.values, dff.columns.values, dff.columns.values, dff.columns.values
+
