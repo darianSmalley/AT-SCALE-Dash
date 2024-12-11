@@ -9,7 +9,6 @@ from .util import apply_filter
 
 import os
 if os.getenv("COLAB_RELEASE_TAG"):
-   print("Running in Colab")
    IN_COLAB = True
 else:
    print("NOT in Colab")
