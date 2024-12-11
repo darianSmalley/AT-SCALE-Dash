@@ -66,12 +66,16 @@ def server_store(n_clicks):
     
 class _local_data:
     def __init__(self):
-        self.root_dir = 'data'
-        self.dir = 'Wall_4mm_400mm_LH0.225mm_MFR4.2_delay_1018-24-9-26-14-32-16'
-        self.filename = 'Transducer_4mm_400mm_LH0.225mm_move_over_for_delay_1018-24-9-26-14-32-16.txt'
-        df = pd.read_csv(f'{self.root_dir}/{self.dir}/{self.filename}', skiprows=[1], skipfooter=38, engine='python')
-        df.columns = df.columns.str.strip()
-        self.df = df.sort_index(axis=1)
+        # self.root_dir = 'data'
+        # self.dir = 'Wall_4mm_400mm_LH0.225mm_MFR4.2_delay_1018-24-9-26-14-32-16'
+        # self.filename = 'Transducer_4mm_400mm_LH0.225mm_move_over_for_delay_1018-24-9-26-14-32-16.txt'
+        # df = pd.read_csv(f'{self.root_dir}/{self.dir}/{self.filename}', skiprows=[1], skipfooter=38, engine='python')
+        # df.columns = df.columns.str.strip()
+        # self.df = df.sort_index(axis=1)
+        self.root_dir = None
+        self.dir = None
+        self.filename = None
+        self.df = None
 
     def set_df(self, df):
         self.df = df
@@ -82,7 +86,7 @@ class _local_data:
     def export_data(self, slider_values, slider_ids):
         dff = self.df.copy()
         dff = apply_filter(dff, slider_values, slider_ids)
-        out_filepath = f'{local_data.root_dir}/{local_data.dir}/{local_data.filename}_filtered.csv'
+        out_filepath = f'{self.root_dir}/{self.dir}/{self.filename}_filtered.csv'
         dff.to_csv(out_filepath, index=False)
 
 local_data = _local_data()
