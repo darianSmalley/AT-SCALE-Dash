@@ -2,7 +2,7 @@
 from dash import Dash
 import dash_bootstrap_components as dbc
 
-from components import layout
+from .components import layout
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME])
 app.layout = layout
